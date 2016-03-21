@@ -3,7 +3,9 @@
 // constructor
 Estado::Estado(bool ledState[],int intencidad[],unsigned long intervaloCambio)
   {
-
+    ledState_ = ledState;
+    intencidad_ = intencidad;
+    intervaloCambio_ = intervaloCambio;
   }
 
 Secuencia::Secuencia (int pines[])

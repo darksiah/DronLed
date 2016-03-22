@@ -7,12 +7,12 @@
   {
   public:
     
-    Estado(bool ledState[],int intencidad[],unsigned long intervaloCambio);
+    Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long intervaloCambio);
     void estList();
 
   private:
-    bool ledState_[];
-    int intencidad_[];
+    bool ledState_[CANTLED];
+    int intencidad_[CANTLED];
     unsigned long intervaloCambio_;
   };
 

@@ -2,16 +2,16 @@
 #include "Arduino.h"
 
 // constructor
-Estado::Estado(bool ledState[],int intencidad[],unsigned long intervaloCambio)
+Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long intervaloCambio)
   {
     //*ledState_ = ledState;
 
-    for (int j=0; j<4 ; j++)
+    for (int j=0; j<CANTLED ; j++)
     {
-      Serial.println(*intencidad[j]);
+      Serial.println(intencidad[j]);
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < CANTLED; i++)
     {
 
       intencidad_[i] = intencidad[i];

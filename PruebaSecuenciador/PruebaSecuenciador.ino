@@ -1,6 +1,6 @@
 #include <Secuencia.h>
 
-int pines[] = {7,8,9,19};
+int pines[4] = {7,8,9,19};
 
 bool ledState[4] = {false,true,false,false};
 unsigned long intervaloCambio = 99;

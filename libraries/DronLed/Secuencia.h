@@ -1,11 +1,15 @@
+#ifndef Secuencia_h
+#define Secuencia_h
+
 #define CANTLED 4
-  
-#include <Arduino.h>
 
   class Estado 
   {
   public:
+    
     Estado(bool ledState[],int intencidad[],unsigned long intervaloCambio);
+    void estList();
+
   private:
     bool ledState_[];
     int intencidad_[];
@@ -36,3 +40,5 @@ class Secuencia
      int cantEstados_;
      
   };  // end of Secuencia class
+
+#endif

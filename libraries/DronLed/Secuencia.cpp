@@ -1,11 +1,35 @@
-#include <Secuencia.h>
+#include "Secuencia.h"
+#include "Arduino.h"
 
 // constructor
 Estado::Estado(bool ledState[],int intencidad[],unsigned long intervaloCambio)
   {
-    ledState_ = ledState;
-    intencidad_ = intencidad;
+    //*ledState_ = ledState;
+
+    for (int j=0; j<4 ; j++)
+    {
+      Serial.println(*intencidad[j]);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+
+      intencidad_[i] = intencidad[i];
+      ledState_[i] = ledState[i];
+
+    }
+    
     intervaloCambio_ = intervaloCambio;
+  }
+
+  void Estado::estList()
+  {
+    Serial.println("Listado Estados");
+
+   for (int i = 0; i < 4; i++)
+    {
+      Serial.println(intencidad_[i]);
+    }
   }
 
 Secuencia::Secuencia (int pines[])
@@ -16,7 +40,9 @@ Secuencia::Secuencia (int pines[])
     ultimoMillis_ = 0;
     cantEstados_ = 0;
     secActive_ = false;
-   } 
+   }
+
+
 
 //Setea las salidas y el tiempo en que comenzo toda la secuencia
 

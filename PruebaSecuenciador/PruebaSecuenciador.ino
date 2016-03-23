@@ -1,24 +1,40 @@
 #include <Secuencia.h>
 
-int pines[4] = {7,8,9,19};
+int pines[4] = {13,8,9,19};
 
-bool ledState[4] = {false,true,false,false};
-unsigned long intervaloCambio = 99;
-int intencidad[4] = {10,20,30,40};
-Estado e(ledState,intencidad,intervaloCambio);
+bool ledStateFB[4] = {true,false,true,false};
+bool ledStateLR[4] = {false,true,false,true};
+bool ledStateAllOn[4] = {true,true,true,true};
+bool ledStateAllOff[4] = {false,false,false,false};
+
+int intencidadFull[4] = {255,255,255,255};
+
+Estado e(ledStateFB,intencidadFull);
+Estado e1(ledStateAllOff,intencidadFull);
+
+Secuencia s1(pines);
 
 
 
 void setup() {
+  Serial.begin(115200);
   // put your setup code here, to run once:
-  //sec.begin();
- 
-  Serial.begin(9600);
+  s1.begin();
+  s1.agregaEstado(e);
+  s1.agregaEstado(e1);
+  //s1.listPines();
+  //s1.listEstados();
   Serial.println("Comenzando programa");
-  e.estList();
-  
+  /*s1.update();
+  delay(500);
+  s1.update();
+  delay(500);
+  s1.update();
+  delay(500);
+  s1.update();
+  */
 }
 
 void loop() {
-  //sec.on();
+  s1.update();
 }

@@ -2,15 +2,18 @@
 #include "Arduino.h"
 
 // constructor
+Estado::Estado()
+  {
+    intervaloCambio_ = 200;
+    for (int i = 0; i < CANTLED; ++i)
+    {
+      intencidad_[i] = 0;
+      ledState_[i] = false;
+    }
+    
+  }
 Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long intervaloCambio)
   {
-    //*ledState_ = ledState;
-
-    for (int j=0; j<CANTLED ; j++)
-    {
-      Serial.println(intencidad[j]);
-    }
-
     for (int i = 0; i < CANTLED; i++)
     {
 
@@ -22,26 +25,61 @@ Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long inte
     intervaloCambio_ = intervaloCambio;
   }
 
+  Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED])
+  {
+    for (int i = 0; i < CANTLED; i++)
+    {
+
+      intencidad_[i] = intencidad[i];
+      ledState_[i] = ledState[i];
+
+    }
+
+    intervaloCambio_ = 200;
+  }
+
   void Estado::estList()
   {
     Serial.println("Listado Estados");
 
    for (int i = 0; i < 4; i++)
     {
-      Serial.println(intencidad_[i]);
+      Serial.print("Encendido:  ");
+      Serial.print(ledState_[i]);
+      Serial.print("  Intencidad:  ");
+      Serial.print(intencidad_[i]);
+      Serial.println("");
     }
   }
 
-Secuencia::Secuencia (int pines[])
+  unsigned long Estado::getIntervalo()
+  {
+    return intervaloCambio_;
+  }
+  
+  int Estado::getIntencidad(int x)
+  {
+    return intencidad_[x];
+  }
+
+  bool Estado::getLedState(int x)
+  {
+    return ledState_[x];
+  }
+
+Secuencia::Secuencia (int pines[CANTLED])
    {
-    estados_ = NULL;
-    pines_ = pines;
+    
+    for (int i=0; i<CANTLED ; i++)
+    {
+      pines_[i] = pines[i];
+    }
+    
     estadoActual_ = 0;
     ultimoMillis_ = 0;
     cantEstados_ = 0;
     secActive_ = false;
    }
-
 
 
 //Setea las salidas y el tiempo en que comenzo toda la secuencia
@@ -56,13 +94,74 @@ void Secuencia::begin ()
     ultimoMillis_ = millis ();  
   }
 
-void Secuencia::agregaEstado()
+void Secuencia::agregaEstado(Estado e)
   {
+    estados_[cantEstados_] = e;
+    cantEstados_++;
   }  
   
 // call from loop to flash the LED
 void Secuencia::update ()
   {
+    //Serial.print("estadoActual_   ");
+    //Serial.println(estadoActual_);
+    //Serial.print("cantEstados_-1   ");
+    //Serial.println(cantEstados_-1);
+    //Serial.print("ultimoMillis_   ");
+    //Serial.println(ultimoMillis_);
+    //Serial.print("millis()   ");
+    //Serial.println(millis());
+    //Serial.print("estados_[estadoActual_].getIntervalo()  ");
+    //Serial.println(estados_[estadoActual_].getIntervalo());
+    //Serial.print("estadoActual_  ");
+    //Serial.println(estadoActual_);
+    //Serial.print("cantEstados_-1  ");
+    //Serial.println(cantEstados_-1);
+    
+
+    if(estadoActual_ > (cantEstados_-1) ) estadoActual_ = 0;
+
+    if( ( (millis() - ultimoMillis_) > estados_[estadoActual_].getIntervalo())  )
+    {
+      //Serial.println("Entre en el IF");
+
+      for (int i = 0; i < CANTLED; i++)
+      {
+        if (estados_[estadoActual_].getLedState(i))
+        {
+          //Serial.println("Ejecute el prendido de pin");
+          analogWrite(pines_[i],estados_[estadoActual_].getIntencidad(i));
+        }
+        
+        else
+          {
+            //Serial.println("Ejecute el apagado de pin");
+            digitalWrite(pines_[i],LOW);
+          }
+
+      }
+      estadoActual_++;
+      ultimoMillis_ = millis();
+    }
+    //Serial.println("-------------------------");
+  }
+
+void Secuencia::listPines()
+  {
+    Serial.println("Listado de pines");
+
+    for (int i = 0; i < CANTLED; i++)
+    {
+      Serial.println(pines_[i]);
+
+    }
+  }
+  void Secuencia::listEstados()
+  {
+    for (int i = 0; i < cantEstados_; i++)
+    {
+      estados_[i].estList();
+    }
   } 
  
  // activate this LED

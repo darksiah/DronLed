@@ -23,6 +23,7 @@ Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long inte
     }
     
     intervaloCambio_ = intervaloCambio;
+    ejecutado_ = false;
   }
 
   Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED])
@@ -36,6 +37,7 @@ Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long inte
     }
 
     intervaloCambio_ = 200;
+    ejecutado_ = false;
   }
 
   void Estado::estList()
@@ -66,6 +68,10 @@ Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long inte
   {
     return ledState_[x];
   }
+  bool Estado::isEjecutado()
+  {
+    return ejecutado_;
+  }
 
 Secuencia::Secuencia (int pines[CANTLED])
    {
@@ -79,6 +85,7 @@ Secuencia::Secuencia (int pines[CANTLED])
     ultimoMillis_ = 0;
     cantEstados_ = 0;
     secActive_ = false;
+    inic_ = true;
    }
 
 
@@ -98,8 +105,16 @@ void Secuencia::agregaEstado(Estado e)
   {
     estados_[cantEstados_] = e;
     cantEstados_++;
-  }  
-  
+  }
+
+bool Secuencia::isInic()
+{
+  return inic_;
+}
+void Secuencia::setInic()
+{
+  inic_ = true;
+}  
 // call from loop to flash the LED
 void Secuencia::update ()
   {
@@ -117,34 +132,76 @@ void Secuencia::update ()
     //Serial.println(estadoActual_);
     //Serial.print("cantEstados_-1  ");
     //Serial.println(cantEstados_-1);
-    
 
-    if(estadoActual_ > (cantEstados_-1) ) estadoActual_ = 0;
 
-    if( ( (millis() - ultimoMillis_) > estados_[estadoActual_].getIntervalo()) && secActive_ )
+    if(estadoActual_ > (cantEstados_-1) ) estadoActual_ = 0; // Reinicia la secuencia cuando llego a su fin
+
+    if ( estadoActual_ == 0 && isInic() )
     {
-      //Serial.println("Entre en el IF");
-
       for (int i = 0; i < CANTLED; i++)
       {
-        if (estados_[estadoActual_].getLedState(i))
+        if (estados_[0].getLedState(i))
         {
           //Serial.println("Ejecute el prendido de pin");
-          analogWrite(pines_[i],estados_[estadoActual_].getIntencidad(i));
+          analogWrite(pines_[i],estados_[0].getIntencidad(i));
         }
-        
         else
-          {
-            //Serial.println("Ejecute el apagado de pin");
-            digitalWrite(pines_[i],LOW);
-          }
-
+        {
+          //Serial.println("Ejecute el apagado de pin");
+          digitalWrite(pines_[i],LOW);
+        }
       }
+
       estadoActual_++;
       ultimoMillis_ = millis();
+      setInic();
     }
-    //Serial.println("-------------------------");
-  }
+    if ( estadoActual_ == 0 && !isInic() )
+    {
+        if( ( (millis() - ultimoMillis_) > estados_[cantEstados_-1].getIntervalo()) && secActive_ && ( !( estados_[estadoActual_].isEjecutado() ) ) )
+          {
+          //Serial.println("Entre en el IF");
+          for (int i = 0; i < CANTLED; i++)
+          {
+            if (estados_[0].getLedState(i))
+            {
+            //Serial.println("Ejecute el prendido de pin");
+            analogWrite(pines_[i],estados_[0].getIntencidad(i));
+            }
+        
+            else
+            {
+            //Serial.println("Ejecute el apagado de pin");
+            digitalWrite(pines_[i],LOW);
+            }
+          } 
+          estadoActual_++;
+          ultimoMillis_ = millis();
+          }
+    }
+    if ( estadoActual_ != 0 )
+    {
+      if ( ( (millis() - ultimoMillis_) > estados_[estadoActual_-1].getIntervalo()) && secActive_ && ( !( estados_[estadoActual_].isEjecutado() ) ) )
+        {
+          //Serial.println("Entre en el IF");
+          for (int i = 0; i < CANTLED; i++)
+          {
+            if (estados_[estadoActual_].getLedState(i))
+              {
+              //Serial.println("Ejecute el prendido de pin");
+              analogWrite(pines_[i],estados_[estadoActual_].getIntencidad(i));
+              }
+            else
+              {
+              //Serial.println("Ejecute el apagado de pin");
+              digitalWrite(pines_[i],LOW);
+              }
+          }
+            estadoActual_++;
+            ultimoMillis_ = millis();
+        }
+    }
+}
 
 void Secuencia::listPines()
   {

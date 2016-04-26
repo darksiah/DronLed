@@ -16,11 +16,13 @@
     unsigned long getIntervalo();
     int getIntencidad(int);
     bool getLedState(int);
+    bool isEjecutado();
 
   private:
     bool ledState_[CANTLED];
     int intencidad_[CANTLED];
     unsigned long intervaloCambio_;
+    bool ejecutado_;
   };
 
 class Secuencia 
@@ -38,6 +40,8 @@ class Secuencia
     void agregaEstado(Estado e);
     void listPines();
     void listEstados();
+    bool isInic();
+    void setInic();
  
    private:
      
@@ -47,6 +51,7 @@ class Secuencia
      unsigned long ultimoMillis_;        // when we last changed state
      int estadoActual_;
      int cantEstados_;
+     bool inic_;
   };  // end of Secuencia class
 
 #endif

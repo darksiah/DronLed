@@ -1,6 +1,6 @@
 #include <Secuencia.h>
 
-int pines[4] = {13,8,9,19};
+int pines[4] = {6,9,10,11};
 
 bool ledStateFB[4] = {true,false,true,false};
 bool ledStateLR[4] = {false,true,false,true};

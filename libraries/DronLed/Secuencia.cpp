@@ -121,7 +121,7 @@ void Secuencia::update ()
 
     if(estadoActual_ > (cantEstados_-1) ) estadoActual_ = 0;
 
-    if( ( (millis() - ultimoMillis_) > estados_[estadoActual_].getIntervalo())  )
+    if( ( (millis() - ultimoMillis_) > estados_[estadoActual_].getIntervalo()) && secActive_ )
     {
       //Serial.println("Entre en el IF");
 

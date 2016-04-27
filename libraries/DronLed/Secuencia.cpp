@@ -4,7 +4,7 @@
 // constructor
 Estado::Estado()
   {
-    intervaloCambio_ = 200;
+    intervaloCambio_ = 1000;
     for (int i = 0; i < CANTLED; ++i)
     {
       intencidad_[i] = 0;
@@ -36,7 +36,7 @@ Estado::Estado(bool ledState[CANTLED],int intencidad[CANTLED],unsigned long inte
 
     }
 
-    intervaloCambio_ = 200;
+    intervaloCambio_ = 1000;
     ejecutado_ = false;
   }
 
@@ -113,7 +113,7 @@ bool Secuencia::isInic()
 }
 void Secuencia::setInic()
 {
-  inic_ = true;
+  inic_ = false;
 }  
 // call from loop to flash the LED
 void Secuencia::update ()
@@ -136,7 +136,7 @@ void Secuencia::update ()
 
     if(estadoActual_ > (cantEstados_-1) ) estadoActual_ = 0; // Reinicia la secuencia cuando llego a su fin
 
-    if ( estadoActual_ == 0 && isInic() )
+    if ( estadoActual_ == 0 && isInic() && secActive_ )
     {
       for (int i = 0; i < CANTLED; i++)
       {
@@ -150,17 +150,19 @@ void Secuencia::update ()
           //Serial.println("Ejecute el apagado de pin");
           digitalWrite(pines_[i],LOW);
         }
+
       }
 
       estadoActual_++;
       ultimoMillis_ = millis();
       setInic();
+      Serial.println("Ejecutado estado 0 por primera vez");
     }
-    if ( estadoActual_ == 0 && !isInic() )
+    if ( estadoActual_ == 0 && !isInic() && secActive_)
     {
         if( ( (millis() - ultimoMillis_) > estados_[cantEstados_-1].getIntervalo()) && secActive_ && ( !( estados_[estadoActual_].isEjecutado() ) ) )
           {
-          //Serial.println("Entre en el IF");
+          Serial.println("Ejecutando estado 0 (no por primera vez)");
           for (int i = 0; i < CANTLED; i++)
           {
             if (estados_[0].getLedState(i))
@@ -178,12 +180,16 @@ void Secuencia::update ()
           estadoActual_++;
           ultimoMillis_ = millis();
           }
+          
     }
     if ( estadoActual_ != 0 )
     {
+      // Serial.println(ultimoMillis_);
+      // Serial.println(estados_[estadoActual_-1].getIntervalo());
+      // Serial.println(secActive_);
+
       if ( ( (millis() - ultimoMillis_) > estados_[estadoActual_-1].getIntervalo()) && secActive_ && ( !( estados_[estadoActual_].isEjecutado() ) ) )
         {
-          //Serial.println("Entre en el IF");
           for (int i = 0; i < CANTLED; i++)
           {
             if (estados_[estadoActual_].getLedState(i))
@@ -197,6 +203,8 @@ void Secuencia::update ()
               digitalWrite(pines_[i],LOW);
               }
           }
+            Serial.print("Ejecutado el estado ");
+            Serial.println(estadoActual_);
             estadoActual_++;
             ultimoMillis_ = millis();
         }
